@@ -1,33 +1,37 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace AsyncAwaitDemo {
-    class Program {
-        static void Main(string[] args) {
+    internal class Program {
+        private static void Main(string[] args) {
             var sw = new Stopwatch();
             sw.Start();
-            DoHousework();
+            DoTheLaundry();
+            CleanAllTheThings();
             sw.Stop();
-            Log("Housework took {0} hours today!", (sw.Elapsed.TotalSeconds/2.0).ToString("0.0"));
+            Log("Housework took {0} hours today!", (sw.Elapsed.TotalSeconds / 2.0).ToString("0.0"));
             Relax();
         }
 
-        static void DoHousework() {
+        private static void DoTheLaundry() {
             var dirtyLaundry = new Laundry() { State = LaundryState.Dirty };
             var wetLaundry = RunWashingMachine(dirtyLaundry);
             var dryLaundry = RunDryer(wetLaundry);
             PutAwayDryClothes(dryLaundry);
+        }
+
+        static void CleanAllTheThings() {
             CleanKitchen();
             CleanBathroom();
         }
 
         static void Relax() {
-            Log("Relaxing...");
-            Log("(press a key when you're sufficiently relaxed");
+            Log("Commencing relaxation process.");
+            Log("(press a key when you feel sufficiently relaxed)");
             Console.ReadKey();
         }
-
 
         static Laundry RunWashingMachine(Laundry laundry) {
             Log("Washing machine is running.");
@@ -37,7 +41,6 @@ namespace AsyncAwaitDemo {
             return (laundry);
         }
 
-        
         static Laundry RunDryer(Laundry laundry) {
             Log("Tumble dryer is running.");
             Thread.Sleep(6000);
