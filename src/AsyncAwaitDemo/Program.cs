@@ -6,25 +6,32 @@ using System.Threading.Tasks;
 namespace AsyncAwaitDemo {
     internal class Program {
         private static void Main(string[] args) {
+            Console.WriteLine("*** WELCOME TO HOUSEWORK SIMULATOR 1.0! ***");
             var sw = new Stopwatch();
             sw.Start();
-            DoTheLaundry();
-            CleanAllTheThings();
+            DoTheChores();
             sw.Stop();
             Log("Housework took {0} hours today!", (sw.Elapsed.TotalSeconds / 2.0).ToString("0.0"));
             Relax();
         }
 
-        private static void DoTheLaundry() {
+        private static void DoTheChores() {
             var dirtyLaundry = new Laundry() { State = LaundryState.Dirty };
+            var cleanLaundry = DoTheLaundry(dirtyLaundry);
+            CleanAllTheThings();
+            PutAwayDryClothes(cleanLaundry);
+        }
+
+        private static Laundry DoTheLaundry(Laundry dirtyLaundry) {
             var wetLaundry = RunWashingMachine(dirtyLaundry);
             var dryLaundry = RunDryer(wetLaundry);
-            PutAwayDryClothes(dryLaundry);
+            return (dryLaundry);
         }
 
         static void CleanAllTheThings() {
             CleanKitchen();
             CleanBathroom();
+            Log("CLEANED ALL THE THINGS!");
         }
 
         static void Relax() {
@@ -37,7 +44,7 @@ namespace AsyncAwaitDemo {
             Log("Washing machine is running.");
             Thread.Sleep(6000);
             laundry.State = LaundryState.Wet;
-            Log("Washing machine is finished.");
+            Report("(washing machine has finished)");
             return (laundry);
         }
 
@@ -45,11 +52,12 @@ namespace AsyncAwaitDemo {
             Log("Tumble dryer is running.");
             Thread.Sleep(6000);
             laundry.State = LaundryState.Dry;
-            Log("Tumble dryer is finished");
+            Report("(tumble dryer has finished)");
             return (laundry);
         }
 
         static void PutAwayDryClothes(Laundry laundry) {
+            laundry.State = LaundryState.PutAway;
             Log("Dry clothes have been put away.");
         }
 
@@ -65,9 +73,18 @@ namespace AsyncAwaitDemo {
             Log("Bathroom is now clean");
         }
 
+        static void Report(string message, params object[] args) {
+            var c = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Log(message, args);
+            Console.ForegroundColor = c;
+        }
+
+        private static readonly DateTime StartedAt = DateTime.Now;
         static void Log(string message, params object[] args) {
-            Console.WriteLine("{0} : {1}", Thread.CurrentThread.ManagedThreadId, String.Format(message, args));
-            Thread.Sleep(500);
+            var now = DateTime.Today.Date.AddHours(10).AddHours((DateTime.Now - StartedAt).TotalSeconds / 2);
+            Console.WriteLine("{0} [Thread #{1}] {2}", now.ToString("HH:mm"), Thread.CurrentThread.ManagedThreadId, String.Format(message, args));
+            Thread.Sleep(200);
         }
     }
 }
