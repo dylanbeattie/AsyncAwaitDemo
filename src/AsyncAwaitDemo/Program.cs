@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace AsyncAwaitDemo {
     class Program {
@@ -14,22 +9,15 @@ namespace AsyncAwaitDemo {
             sw.Start();
             DoHousework();
             sw.Stop();
-            Log("Housework took {0} hours today!", sw.Elapsed.TotalSeconds.ToString("0.00"));
+            Log("Housework took {0} hours today!", (sw.Elapsed.TotalSeconds/2.0).ToString("0.0"));
             Relax();
         }
 
         static void DoHousework() {
-            
-            var laundry = new Laundry() {
-                State = LaundryState.Dirty, 
-                Location = LaundryLocation.LaundryBasket
-            };
-
-            LoadWashingMachine(laundry);
-            RunWashingMachine(laundry);
-            PutWetClothesInDryer(laundry);
-            RunDryer(laundry);
-            PutAwayDryClothes(laundry);
+            var dirtyLaundry = new Laundry() { State = LaundryState.Dirty };
+            var wetLaundry = RunWashingMachine(dirtyLaundry);
+            var dryLaundry = RunDryer(wetLaundry);
+            PutAwayDryClothes(dryLaundry);
             CleanKitchen();
             CleanBathroom();
         }
@@ -40,67 +28,43 @@ namespace AsyncAwaitDemo {
             Console.ReadKey();
         }
 
-        static void LoadWashingMachine(Laundry laundry) {
-            laundry.Location = LaundryLocation.WashingMachine;
-            Log("Washing machine is ready to go!");
-        }
 
-        static void RunWashingMachine(Laundry laundry) {
+        static Laundry RunWashingMachine(Laundry laundry) {
             Log("Washing machine is running.");
-            Thread.Sleep(5000);
+            Thread.Sleep(6000);
             laundry.State = LaundryState.Wet;
             Log("Washing machine is finished.");
+            return (laundry);
         }
 
-        static void PutWetClothesInDryer(Laundry laundry) {
-            laundry.Location = LaundryLocation.TumbleDryer;
-            Log("Tumble dryer is ready to go!");
-        }
-
-        static void RunDryer(Laundry laundry) {
+        
+        static Laundry RunDryer(Laundry laundry) {
             Log("Tumble dryer is running.");
-            Thread.Sleep(3000);
+            Thread.Sleep(6000);
             laundry.State = LaundryState.Dry;
             Log("Tumble dryer is finished");
+            return (laundry);
         }
 
         static void PutAwayDryClothes(Laundry laundry) {
-            laundry.Location = LaundryLocation.Wardrobe;
             Log("Dry clothes have been put away.");
         }
 
         static void CleanKitchen() {
             Log("Starting to clean kitchen");
-            Thread.Sleep(1000);
+            Thread.Sleep(2000);
             Log("Kitchen is now clean");
         }
 
         static void CleanBathroom() {
             Log("Starting to clean bathroom");
-            Thread.Sleep(1000);
+            Thread.Sleep(2000);
             Log("Bathroom is now clean");
         }
 
         static void Log(string message, params object[] args) {
             Console.WriteLine("{0} : {1}", Thread.CurrentThread.ManagedThreadId, String.Format(message, args));
+            Thread.Sleep(500);
         }
-    }
-
-    public enum LaundryLocation {
-        LaundryBasket,
-        WashingMachine,
-        TumbleDryer,
-        Wardrobe
-    }
-
-    public enum LaundryState {
-        Dirty,
-        Wet,
-        Dry
-    }
-
-    public class Laundry {
-        public LaundryState State { get; set; }
-        public LaundryLocation Location { get; set; }
     }
 }
