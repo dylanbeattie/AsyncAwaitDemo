@@ -19,11 +19,17 @@ namespace AsyncAwaitDemo {
         }
 
         static void DoHousework() {
-            LoadWashingMachine();
-            RunWashingMachine();
-            PutWetClothesInDryer();
-            RunDryer();
-            PutAwayDryClothes();
+            
+            var laundry = new Laundry() {
+                State = LaundryState.Dirty, 
+                Location = LaundryLocation.LaundryBasket
+            };
+
+            LoadWashingMachine(laundry);
+            RunWashingMachine(laundry);
+            PutWetClothesInDryer(laundry);
+            RunDryer(laundry);
+            PutAwayDryClothes(laundry);
             CleanKitchen();
             CleanBathroom();
         }
@@ -34,27 +40,32 @@ namespace AsyncAwaitDemo {
             Console.ReadKey();
         }
 
-        static void LoadWashingMachine() {
+        static void LoadWashingMachine(Laundry laundry) {
+            laundry.Location = LaundryLocation.WashingMachine;
             Log("Washing machine is ready to go!");
         }
 
-        static void RunWashingMachine() {
+        static void RunWashingMachine(Laundry laundry) {
             Log("Washing machine is running.");
-            Thread.Sleep(3000);
+            Thread.Sleep(5000);
+            laundry.State = LaundryState.Wet;
             Log("Washing machine is finished.");
         }
 
-        static void PutWetClothesInDryer() {
+        static void PutWetClothesInDryer(Laundry laundry) {
+            laundry.Location = LaundryLocation.TumbleDryer;
             Log("Tumble dryer is ready to go!");
         }
 
-        static void RunDryer() {
+        static void RunDryer(Laundry laundry) {
             Log("Tumble dryer is running.");
             Thread.Sleep(3000);
+            laundry.State = LaundryState.Dry;
             Log("Tumble dryer is finished");
         }
 
-        static void PutAwayDryClothes() {
+        static void PutAwayDryClothes(Laundry laundry) {
+            laundry.Location = LaundryLocation.Wardrobe;
             Log("Dry clothes have been put away.");
         }
 
@@ -73,5 +84,23 @@ namespace AsyncAwaitDemo {
         static void Log(string message, params object[] args) {
             Console.WriteLine("{0} : {1}", Thread.CurrentThread.ManagedThreadId, String.Format(message, args));
         }
+    }
+
+    public enum LaundryLocation {
+        LaundryBasket,
+        WashingMachine,
+        TumbleDryer,
+        Wardrobe
+    }
+
+    public enum LaundryState {
+        Dirty,
+        Wet,
+        Dry
+    }
+
+    public class Laundry {
+        public LaundryState State { get; set; }
+        public LaundryLocation Location { get; set; }
     }
 }
